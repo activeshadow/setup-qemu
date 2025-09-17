@@ -1,24 +1,24 @@
 name: Download and build QEMU
 description: |
   Download, build, and install QEMU for the specified architectures of the specified version.
-author: "equation314"
+author: equation314
 branding:
-  color: "green"
-  icon: "download"
+  color: green
+  icon: download
 
 inputs:
   version:
-    description: 'QEMU version'
+    description: QEMU version
     required: true
     type: string
   arch_list:
-    description: 'Architectures to be installed, comma separated if multiple.'
+    description: Architectures to be installed, comma separated if multiple.
     required: false
     type: string
-    default: 'x86_64,riscv64,aarch64'
+    default: x86_64,riscv64,aarch64
 
 runs:
-  using: "composite"
+  using: composite
   steps:
   - name: Build cache key
     run: |
@@ -45,7 +45,7 @@ runs:
     run: |
       : build QEMU
       # Install dependencies
-      sudo apt-get update && sudo apt-get install -y ninja-build libslirp-dev libglib2.0-dev
+      sudo apt-get update && sudo apt-get install -y ninja-build libslirp-dev libglib2.0-dev python3-tomli libpixman-1-dev
 
       # Split, prepend and re-join the architectures
       IFS=',' read -ra ARCH <<< "${{ inputs.arch_list }}"
@@ -69,6 +69,8 @@ runs:
   - name: Install QEMU
     shell: bash
     run: |
+      # Ensure libslirp is installed after cache hit
+      sudo apt-get update && sudo apt-get install -y libslirp0
       echo "$PWD/qemu_build/bin" >> $GITHUB_PATH
   - name: Verify installation
     shell: bash
